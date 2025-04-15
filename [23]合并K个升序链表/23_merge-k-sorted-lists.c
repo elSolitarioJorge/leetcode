@@ -1,31 +1,42 @@
 struct ListNode* mergeTwoLists(struct ListNode* list1, struct ListNode* list2) {
-    struct ListNode* dummyHead = (struct ListNode*)malloc(sizeof(struct ListNode));
-    dummyHead->next = NULL;
-    struct ListNode* l1 = list1;
-    struct ListNode* l2 = list2;
-    struct ListNode* pre = dummyHead;
-    while(l1 && l2){
-        if(l1->val <= l2->val){
-            pre->next = l1;
-            l1 = l1->next;
+    struct ListNode dummyHead;
+    dummyHead.next = NULL;
+    struct ListNode* cur = &dummyHead;
+    while (list1 && list2) {
+        if (list1->val > list2->val) {
+            cur->next = list2;
+            list2 = list2->next;
         } else {
-            pre->next = l2;
-            l2 = l2->next;
+            cur->next = list1;
+            list1 = list1->next;
         }
-        pre = pre->next;
+        cur = cur->next;
     }
-    pre->next = l1 == NULL ? l2 : l1;
-    struct ListNode* head = dummyHead->next;
-    free(dummyHead);
-    return head;
+    if (list1) {
+        cur->next = list1;
+    } else{
+        cur->next = list2;
+    }
+    return dummyHead.next;
 }
+
+struct ListNode* split(struct ListNode** lists, int l, int r) {
+    int m = r - l;
+    if (m == 0) {
+        return NULL;
+    }
+    if (m == 1) {
+        return lists[l];
+    }
+    struct ListNode* left = split(lists, l, l + m / 2);
+    struct ListNode* right = split(lists, l + m / 2, r);
+    return mergeTwoLists(left, right);
+}
+
 struct ListNode* mergeKLists(struct ListNode** lists, int listsSize) {
-    struct ListNode* list = NULL;
-    for(int i = 0; i < listsSize; i++){
-        list = mergeTwoLists(list, lists[i]);
-    }
-    return list;
+    return split(lists, 0, listsSize);
 }
+
 
     
     
